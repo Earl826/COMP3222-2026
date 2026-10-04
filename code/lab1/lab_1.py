@@ -23,10 +23,12 @@ DATA_DIR = Path(__file__).resolve().parents[2] / "data" / "lab1"
 
 
 def euclidean_distance_python(x: np.ndarray, y: np.ndarray) -> float:
-    """Add a docstring."""
-    return 0
-
-
+    """Implement a function with a single loop that computes the
+       sum of squared differences, then returns the square root."""
+    sum_of_squared_differences=0
+    for i in range(len(x)):
+        sum_of_squared_differences+=(x[i]-y[i])**2
+    return math.sqrt(sum_of_squared_differences)
 
 def time_distance(distance_function, n: int, random_state: int = 0) -> float:
     """Time a single call of ``distance_function`` on two random series of length n.
