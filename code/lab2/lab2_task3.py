@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.tree import _tree
 
 
+
 def load_data(split=None):
     """Load ItalyPowerDemand as a 2D feature matrix and integer class labels.
 
@@ -164,7 +165,46 @@ if __name__ == "__main__":
     X, y = load_data()
     print("Data shapes:", X.shape, y.shape)
     print("Classes:", np.unique(y))
-    dt = DecisionTreeClassifier(random_state=0)
-    dt.fit(X, y)
-    print("Tree depth:", dt.get_depth(), "leaves:", dt.get_n_leaves())
+    # 1. Unconstrained default tree 
+    dt_default = DecisionTreeClassifier(random_state=0)
+    dt_default.fit(X, y)
+    print("\n--- Default (Unconstrained) Tree ---")
+    print("Depth:", dt_default.get_depth(), "| Leaves:", dt_default.get_n_leaves())
 
+    # 2. Pre-pruning with max_depth
+    dt_depth3 = DecisionTreeClassifier(max_depth=3, random_state=0)
+    dt_depth3.fit(X, y)
+    print("\n--- Pre-pruned (max_depth=3) ---")
+    print("Depth:", dt_depth3.get_depth(), "| Leaves:", dt_depth3.get_n_leaves())
+
+    # 3. Pre-pruning with min_samples_leaf
+    dt_leaf20 = DecisionTreeClassifier(min_samples_leaf=20, random_state=0)
+    dt_leaf20.fit(X, y)
+    print("\n--- Pre-pruned (min_samples_leaf=20) ---")
+    print("Depth:", dt_leaf20.get_depth(), "| Leaves:", dt_leaf20.get_n_leaves())
+
+    # 4. Post-pruning with ccp_alpha 
+    for alpha in [0.02, 0.1]:
+        dt_pruned = DecisionTreeClassifier(ccp_alpha=alpha, random_state=0)
+        dt_pruned.fit(X, y)
+        print(f"\n--- Post-pruned (ccp_alpha={alpha}) ---")
+        print("Depth:", dt_pruned.get_depth(), "| Leaves:", dt_pruned.get_n_leaves())
+
+# Pick two features for 2D visualization 
+X_2d = X[:, [3, 11]]
+feature_names = ["Hour 3 Power", "Hour 11 Power"]
+class_names = ["Oct-Mar", "Apr-Sep"]
+
+# Fit a shallow tree on 2D data to see clear partitions
+dt_2d = DecisionTreeClassifier(max_depth=3, random_state=0)
+dt_2d.fit(X_2d, y)
+
+# Plot the partitions and decision regions
+plot_tree_2d(
+    clf=dt_2d,
+    X=X_2d,
+    y=y,
+    feature_names=feature_names,
+    class_names=class_names,
+    show_splits=True,
+)
